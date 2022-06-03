@@ -15,7 +15,11 @@ import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiModifierList;
+import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.CodeBlock;
+import io.protostuff.Tag;
 
 import java.util.List;
 
@@ -72,9 +76,17 @@ public class GenerateAction extends AnAction
 						index++;
 						continue;
 					}
-					PsiAnnotation annotationFromText = elementFactory.createAnnotationFromText( "@Tag(" + index++ + ")", psiClass );
-					field.addBefore( annotationFromText, modifierList );
+					// already has @tag, skip it
+					if (field.hasAnnotation("io.protostuff.Tag")) {
+						continue;
+					}
+					AnnotationSpec tagAnnotation = AnnotationSpec.builder(Tag.class)
+							.addMember("value", CodeBlock.builder().add(index++ + "").build())
+							.build();
+					PsiAnnotation annotationFromText = elementFactory.createAnnotationFromText(tagAnnotation.toString(), psiClass );
+					field.addBefore( annotationFromText, modifierList);
 				}
+				JavaCodeStyleManager.getInstance(getProject()).shortenClassReferences(psiClass);
 
 			}
 		}.execute();

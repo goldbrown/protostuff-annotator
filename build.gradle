@@ -1,19 +1,68 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-}
+
 
 plugins {
-    id "org.jetbrains.intellij" version "0.3.4"
+    // gradle-intellij-plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
+    // Java support
+    id("java")
+    // Kotlin support
+//    id("org.jetbrains.kotlin.jvm") version "1.6.10"
+    // Gradle IntelliJ Plugin
+    id("org.jetbrains.intellij") version "0.4.10"
+    // Gradle Changelog Plugin
+//    id("org.jetbrains.changelog") version "1.3.1"
 }
 
-apply plugin: 'java'
+dependencies {
+    testCompileOnly("com.alibaba:fastjson:1.2.76")
+    testCompileOnly("com.fasterxml.jackson.core:jackson-annotations:2.11.0")
+    // https://projectlombok.org/setup/gradle
+    testCompileOnly("org.projectlombok:lombok:1.18.22")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.22")
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation("com.google.guava:guava:31.0.1-jre")
+    implementation('com.squareup:javapoet:1.13.0')
+    // https://mvnrepository.com/artifact/io.protostuff/protostuff-runtime
+    implementation 'io.protostuff:protostuff-runtime:1.7.2'
+    // https://mvnrepository.com/artifact/io.protostuff/protostuff-api
+    implementation 'io.protostuff:protostuff-api:1.7.2'
+    // https://mvnrepository.com/artifact/io.protostuff/protostuff-core
+    implementation 'io.protostuff:protostuff-core:1.7.2'
+}
+
+group = "org.jetbrains"
+version = "1.0.0.compatible"
+
+repositories {
+    mavenLocal() // 本地仓库
+    maven{ url 'https://maven.aliyun.com/repository/central' }
+    maven{ url 'https://maven.aliyun.com/repository/public' }
+    maven{ url 'https://maven.aliyun.com/repository/gradle-plugin'}
+    mavenCentral()
+}
+
+
+//intellij {
+//    version '163.15529.8' //IntelliJ IDEA 2016.3 dependency; for a full list of IntelliJ IDEA releases please see https://www.jetbrains.com/intellij-repository/releases
+//    plugins 'coverage' //Bundled plugin dependencies
+//    pluginName 'protostuff-annotator'
+//}
 
 intellij {
-    version '163.15529.8' //IntelliJ IDEA 2016.3 dependency; for a full list of IntelliJ IDEA releases please see https://www.jetbrains.com/intellij-repository/releases
-    plugins 'coverage' //Bundled plugin dependencies
-    pluginName 'protostuff-annotator'
+//    version.set("IC-2019.2.2")
+//    updateSinceUntilBuild.set(false)
+    // https://github.com/JetBrains/gradle-intellij-plugin/issues/38
+    version 'IC-2019.2.2'
+    plugins = ['java']
 }
 
-group 'org.jetbrains'
+patchPluginXml {
+    changeNotes = """
+      v1.0.0.compatible<br><ul>
+      <li>Compatible for 2019.2 IDEA</li>
+      </ul>"""
+    sinceBuild = '191'
+    untilBuild = '221'
+}
+test {
+    useJUnitPlatform()
+}
